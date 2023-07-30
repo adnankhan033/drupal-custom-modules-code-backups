@@ -1,0 +1,88 @@
+<?php
+
+/**
+ * @file
+ * Contains custom_field_autocomplete.module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Ajax\AjaxResponse;
+use Drupal\Core\Ajax\HtmlCommand;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\user\Entity\User;
+use Drupal\Core\Ajax\InvokeCommand;
+
+/**
+ * Implements hook_help().
+ */
+function custom_field_autocomplete_help($route_name, RouteMatchInterface $route_match) {
+    switch ($route_name) {
+            // Main module help for the custom_field_autocomplete module.
+        case 'help.page.custom_field_autocomplete':
+            $output = '';
+            $output .= '<h3>' . t('About') . '</h3>';
+            $output .= '<p>' . t('Created custom module inside bundle to complete field on the base of selected user ajax') . '</p>';
+            return $output;
+
+        default:
+    }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function custom_field_autocomplete_theme() {
+    return [
+        'custom_field_autocomplete' => [
+            'render element' => 'children',
+        ],
+    ];
+}
+
+
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function custom_field_autocomplete_form_alter(array &$form, FormStateInterface $form_state, $form_id) {
+    if ($form_id == 'node_auto_complete_user_field_form') {
+
+        $form['field_user']['widget']['#ajax'] = [
+            'callback' => 'mymodule_update_user_data_ajax_callback',
+            'event' => 'change',
+            'wrapper' => 'user-data-wrapper', // The ID of the wrapper div to update.
+        ];
+
+        // Add a wrapper div to hold the user data fields.
+        $form['field_user']['widget']['#prefix'] = '<div id="user-data-wrapper">';
+        $form['field_user']['widget']['#suffix'] = '</div>';
+    }
+}
+
+
+function mymodule_update_user_data_ajax_callback(array &$form, FormStateInterface $form_state) {
+    // Get the selected user ID from the form submission.
+    $selected_user_id = $form_state->getValue('field_user')[0]['target_id'];
+    $response = new AjaxResponse();
+    if (!empty($selected_user_id)) {
+        //        //    // Load the selected user entity.
+        $selected_user = User::load($selected_user_id);
+        if ($selected_user instanceof User) {
+            $address = $selected_user->get('field_address')->value;
+            $phone = $selected_user->get('field_phone_number')->value;
+            $response->addCommand(new InvokeCommand('#edit-field-address-0-value', 'val', [$address]));
+        $response->addCommand(new InvokeCommand('#edit-field-phone-number-0-value', 'val', [$phone]));
+        }
+    } else {
+        //        $response->addCommand(new HtmlCommand('#edit-field-address-0-value', ''));
+        $response->addCommand(new InvokeCommand('#edit-field-address-0-value', 'val', ['']));
+        $response->addCommand(new InvokeCommand('#edit-field-phone-number-0-value', 'val', ['']));
+
+    }
+
+    return $response;
+}
+
+
+

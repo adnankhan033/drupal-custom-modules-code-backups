@@ -1,0 +1,13 @@
+{
+    "name": "custom_field_autocomplete",
+    "type": "drupal-module",
+    "description": "Created custom module inside bundle to complete field on the base of selected user ajax",
+    "keywords": [
+    ],
+    "homepage": "https://www.drupal.org/project/custom_field_autocomplete",
+    "minimum-stability": "dev",
+    "support": {
+        "issues": "https://www.drupal.org/project/issues/custom_field_autocomplete",
+        "source": "http://cgit.drupalcode.org/custom_field_autocomplete",
+    },
+}

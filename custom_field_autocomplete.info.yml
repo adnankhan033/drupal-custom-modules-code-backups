@@ -1,0 +1,5 @@
+name: 'custom_field_autocomplete'
+type: module
+description: 'Created custom module inside bundle to complete field on the base of selected user ajax'
+core_version_requirement: ^9 || ^10
+package: 'Custom'
